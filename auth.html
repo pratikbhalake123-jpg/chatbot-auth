@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Authentication</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+        }
+        .logo {
+            font-size: 72px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        input {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin: 15px 0;
+            transition: all 0.3s;
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #0078d4;
+            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
+        }
+        button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 120, 212, 0.3);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 120, 212, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .message.show {
+            display: block;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        .info-box {
+            background: #e7f3ff;
+            border: 2px solid #b8daff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: left;
+        }
+        .info-box h3 {
+            color: #004085;
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        .info-box li {
+            color: #004085;
+            font-size: 13px;
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        .info-box li:before {
+            content: "🔑";
+            position: absolute;
+            left: 0;
+        }
+        .footer {
+            margin-top: 25px;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">🔐</div>
+        <h1>Chatbot Access</h1>
+        <p class="subtitle">Enter your secure access code to continue</p>
+        
+        <input 
+            type="password" 
+            id="code" 
+            placeholder="Enter Access Code"
+            autocomplete="off"
+        />
+        <button onclick="login()">Authenticate</button>
+        
+        <div id="msg" class="message"></div>
+        
+        <div class="info-box">
+            <h3>📋 Valid Access Codes:</h3>
+            <ul>
+                <li><strong>DEMO2026</strong> - Demo access</li>
+                <li><strong>TEAM2026</strong> - Team access</li>
+                <li><strong>ADMIN2026</strong> - Admin access</li>
+            </ul>
+            <p style="font-size: 12px; color: #6c757d; margin-top: 12px;">
+                All codes expire: December 31, 2026
+            </p>
+        </div>
+        
+        <div class="footer">
+            Powered by Microsoft Copilot Studio
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // ACCESS CODES CONFIGURATION
+        // You can add/remove/modify codes here
+        // ========================================
+        const CODES = {
+            'DEMO2026': {
+                user: 'Demo User',
+                role: 'demo',
+                expires: '2026-12-31',
+                description: 'Demo access'
+            },
+            'TEAM2026': {
+                user: 'Team Member',
+                role: 'team',
+                expires: '2026-12-31',
+                description: 'Team access'
+            },
+            'ADMIN2026': {
+                user: 'Administrator',
+                role: 'admin',
+                expires: '2026-12-31',
+                description: 'Admin access'
+            }
+        };
+
+        function login() {
+            const code = document.getElementById('code').value.trim().toUpperCase();
+            const msg = document.getElementById('msg');
+            
+            // Validate input
+            if (!code) {
+                showMessage('⚠️ Please enter an access code', 'error');
+                return;
+            }
+            
+            // Check if code exists
+            if (CODES[code]) {
+                const userData = CODES[code];
+                const expiryDate = new Date(userData.expires).getTime();
+                
+                // Check if expired
+                if (Date.now() > expiryDate) {
+                    showMessage('❌ This access code has expired', 'error');
+                    return;
+                }
+                
+                // Store authentication data
+                const authData = {
+                    authenticated: true,
+                    user: userData.user,
+                    role: userData.role,
+                    code: code,
+                    loginTime: new Date().toISOString(),
+                    timestamp: Date.now(),
+                    expires: expiryDate
+                };
+                
+                // Save to localStorage (persists across browser sessions)
+                localStorage.setItem('bot_auth', JSON.stringify(authData));
+                
+                // Show success message
+                showMessage('✅ Authentication successful! You can now close this page and return to Frontlyne app.', 'success');
+                
+                // Clear the input
+                document.getElementById('code').value = '';
+                
+                // Log success (for debugging)
+                console.log('Authentication successful:', {
+                    user: userData.user,
+                    role: userData.role,
+                    time: new Date().toLocaleString()
+                });
+                
+                // Try to close window after 3 seconds (may not work on all mobile browsers)
+                setTimeout(() => {
+                    window.close();
+                    // If window doesn't close, user will see success message
+                }, 3000);
+                
+            } else {
+                // Invalid code
+                showMessage('❌ Invalid access code. Please check and try again.', 'error');
+                document.getElementById('code').value = '';
+                document.getElementById('code').focus();
+            }
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('msg');
+            msg.textContent = text;
+            msg.className = 'message show ' + type;
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('code').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+
+        // Auto-focus input on page load
+        window.addEventListener('load', function() {
+            document.getElementById('code').focus();
+        });
+
+        // Check if already authenticated (for debugging)
+        window.addEventListener('load', function() {
+            const authStr = localStorage.getItem('bot_auth');
+            if (authStr) {
+                try {
+                    const auth = JSON.parse(authStr);
+                    if (auth.authenticated && Date.now() < auth.expires) {
+                        console.log('Already authenticated as:', auth.user);
+                    }
+                } catch (e) {
+                    // Invalid auth data
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+```
+
+### Step 4: Paste the Code
+1. Click in the large text area below where you named the file
+2. **Paste** the code (Ctrl+V or Cmd+V)
+
+### Step 5: Commit the File
+1. Scroll down to the bottom
+2. You'll see "Commit new file"
+3. In the first box, it says "Create auth.html" - **leave it as is**
+4. Click the green **"Commit new file"** button
+
+✅ **Your auth.html file is created!**
+
+---
+
+## Part 4: Enable GitHub Pages (2 minutes)
+
+### Step 1: Go to Settings
+1. You should now see your repository with `auth.html` file
+2. Click on **"Settings"** tab (at the top of the page)
+
+### Step 2: Navigate to Pages
+1. On the left sidebar, scroll down
+2. Click on **"Pages"** (under "Code and automation" section)
+
+### Step 3: Configure Pages
+1. Under **"Source"**, you'll see a dropdown that says "None"
+2. Click the dropdown and select **"main"** (or "master" if that's what you see)
+3. Leave the folder as **"/ (root)"**
+4. Click **"Save"**
+
+### Step 4: Wait for Deployment
+1. You'll see a message: "GitHub Pages source saved"
+2. **Wait 1-2 minutes** for deployment
+3. Refresh the page
+
+### Step 5: Get Your URL
+1. After refreshing, you'll see a blue/green box at the top that says:
+```
+   Your site is live at https://YOUR-USERNAME.github.io/chatbot-auth/
+```
+2. **Copy this URL**
+3. Add `auth.html` to the end
+
+**Your final URL will be:**
+```
+https://YOUR-USERNAME.github.io/chatbot-auth/auth.html
